@@ -63,13 +63,13 @@ export const Widget = ({ projectId }) => {
       <div className="widget fixed bottom-4 right-4 z-50">
         <Popover>
           <PopoverTrigger asChild>
-            <Button className="rounded-full shadow-xl hover:scale-110 transition-all ease-in-out bg-indigo-600 text-white hover:bg-indigo-700">
+            <Button className="rounded-full shadow-xl hover:scale-110 transition-all ease-in-out bg-violet-500 text-white hover:bg-sky-700">
               <MessageCircleIcon className="mr-2 h-5 w-5 text-white" />
               Feedback
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent className="widget rounded-lg bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-500 p-6 shadow-xl w-full max-w-md">
+          <PopoverContent className="widget rounded-lg bg-gradient-to-r from-violet-400 via-purple-300 to-sky-900 p-6 shadow-xl w-full max-w-md">
             <style>{tailwindStyles}</style>
             {submitted ? (
               <div>
@@ -92,7 +92,7 @@ export const Widget = ({ projectId }) => {
                       <Input
                         id="name"
                         placeholder="Enter your name"
-                        className="bg-white p-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="bg-white p-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-100"
                       />
                     </div>
                     <div className="space-y-2">
@@ -125,7 +125,7 @@ export const Widget = ({ projectId }) => {
                         />
                       ))}
                     </div>
-                    <Button type="submit" disabled={loading} className="bg-sky-900 text-white hover:bg-indigo-300 p-2 rounded-lg shadow-md transition-all duration-200">
+                    <Button type="submit" disabled={loading} className="bg-green-800 text-white hover:bg-violet-500 p-2 rounded-lg shadow-md transition-all duration-200">
                       {loading ? "Submitting..." : "Submit"}
                     </Button>
                   </div>
@@ -138,9 +138,9 @@ export const Widget = ({ projectId }) => {
               <a
                 href="https://ladwongfullstackdev.netlify.app"
                 target="_blank"
-                className="text-indigo-600 hover:underline"
+                className="text-indigo-700 font-bold hover:underline"
               >
-                MilkyWay ⚡️
+                MilkyWay ⚡️⚡️⚡️
               </a>
             </div>
           </PopoverContent>
