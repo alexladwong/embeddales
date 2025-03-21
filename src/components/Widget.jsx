@@ -9,9 +9,9 @@ import tailwindStyles from "../index.css?inline";
 import supabase from "../supabaseClient";
 
 export const Widget = ({ projectId }) => {
-  const [rating, setRating] = useState(3); // Default rating
-  const [submitted, setSubmitted] = useState(false); // Submitted state to show a confirmation
-  const [loading, setLoading] = useState(false);  // Loading state for button
+  const [rating, setRating] = useState(3);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);  // Add loading state
 
   const onSelectStar = (index) => {
     setRating(index + 1);
@@ -114,19 +114,19 @@ export const Widget = ({ projectId }) => {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                       {[...Array(5)].map((_, index) => (
                         <StarIcon
                           key={index}
                           className={`h-6 w-6 cursor-pointer transition-all duration-200 ${
-                            rating > index ? "text-amber-300 fill-amber-300" : "text-gray-200 fill-none"
+                            rating > index ? "text-amber-300" : "text-gray-200"
                           }`}
                           onClick={() => onSelectStar(index)}
                         />
                       ))}
                     </div>
 
-                    <Button type="submit" disabled={loading} className="bg-green-800 text-white hover:bg-violet-500 p-2 rounded-lg shadow-md transition-all duration-200">
+                    <Button type="submit" disabled={loading} className="bg-violet-500 text-white hover:bg-green-600 p-2 rounded-lg shadow-md transition-all duration-200">
                       {loading ? "Submitting..." : "Submit"}
                     </Button>
                   </div>
@@ -159,7 +159,7 @@ function StarIcon(props) {
       width="34"
       height="34"
       viewBox="0 0 24 24"
-      fill={props.fill || "none"} // This line ensures the fill is applied based on the condition
+      fill="none"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
