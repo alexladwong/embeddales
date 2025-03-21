@@ -9,9 +9,9 @@ import tailwindStyles from "../index.css?inline";
 import supabase from "../supabaseClient";
 
 export const Widget = ({ projectId }) => {
-  const [rating, setRating] = useState(3);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);  // Add loading state
+  const [rating, setRating] = useState(3); // Default rating
+  const [submitted, setSubmitted] = useState(false); // Submitted state to show a confirmation
+  const [loading, setLoading] = useState(false);  // Loading state for button
 
   const onSelectStar = (index) => {
     setRating(index + 1);
@@ -119,12 +119,13 @@ export const Widget = ({ projectId }) => {
                         <StarIcon
                           key={index}
                           className={`h-6 w-6 cursor-pointer transition-all duration-200 ${
-                            rating > index ? "text-yellow-300" : "text-gray-200"
+                            rating > index ? "text-amber-300 fill-amber-300" : "text-gray-200 fill-none"
                           }`}
                           onClick={() => onSelectStar(index)}
                         />
                       ))}
                     </div>
+
                     <Button type="submit" disabled={loading} className="bg-green-800 text-white hover:bg-violet-500 p-2 rounded-lg shadow-md transition-all duration-200">
                       {loading ? "Submitting..." : "Submit"}
                     </Button>
@@ -132,7 +133,7 @@ export const Widget = ({ projectId }) => {
                 </form>
               </div>
             )}
-            <Separator className="my-4 border-gray-300" />
+            <Separator className="my-4 border-gray-400" />
             <div className="text-gray-600">
               Powered by{" "}
               <a
@@ -158,7 +159,7 @@ function StarIcon(props) {
       width="34"
       height="34"
       viewBox="0 0 24 24"
-      fill="none"
+      fill={props.fill || "none"} // This line ensures the fill is applied based on the condition
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
