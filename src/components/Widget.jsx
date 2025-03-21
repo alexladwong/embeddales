@@ -134,15 +134,15 @@ export const Widget = ({ projectId }) => {
               </div>
             )}
             <Separator className="my-4 border-gray-300" />
-            <div className="text-gray-200">
+            <div className="text-gray-600">
               Powered by{" "}
-              <Link
+              <a
                 href="https://ladwongfullstackdev.netlify.app"
                 target="_blank"
-                className="text-indigo-200 hover:text-indigo-400 hover:underline"
+                className="text-indigo-600 hover:underline"
               >
                 MilkyWay ⚡️
-              </Link>
+              </a>
             </div>
           </PopoverContent>
         </Popover>
