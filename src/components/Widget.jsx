@@ -7,7 +7,6 @@ import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import tailwindStyles from "../index.css?inline";
 import supabase from "../supabaseClient";
-import Link from "next/link";
 
 export const Widget = ({ projectId }) => {
   const [rating, setRating] = useState(3);
