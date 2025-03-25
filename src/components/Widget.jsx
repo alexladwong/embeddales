@@ -66,7 +66,7 @@ export const Widget = ({ projectId }) => {
       <div className="widget fixed bottom-4 right-4 z-50">
         <Popover>
           <PopoverTrigger asChild>
-            <Button className="rounded-full shadow-xl hover:scale-110 transition-all ease-in-out bg-violet-500 text-white hover:bg-sky-700">
+            <Button className="rounded-full shadow-xl hover:scale-110 transition-all ease-in-out bg-blue-700 text-white hover:bg-sky-700">
               <MessageCircleIcon className="mr-2 h-5 w-5 text-white" />
               Feedback
             </Button>
@@ -140,11 +140,11 @@ export const Widget = ({ projectId }) => {
             <div className="text-gray-600">
               Powered by{" "}
               <a
-                href="https://ladwongfullstackdev.netlify.app"
+                href="https://www.mrdmilkyway.com"
                 target="_blank"
                 className="text-indigo-700 font-bold hover:underline"
               >
-                MrDollarInc. ⚡️⚡️⚡️
+                MrDollarsMilkyWay⚡️⚡️⚡️
               </a>
             </div>
           </PopoverContent>
@@ -173,23 +173,24 @@ function StarIcon(props) {
   );
 }
 
+
 function MessageCircleIcon(props) {
   return (
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
-      width="30"
-      height="30"
-      viewBox="0 0 24 24"
+      width="44"
+      height="44"
+      viewBox="0 0 28 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="lucide lucide-message-double"
+      className="lucide lucide-message-circle"
     >
-      <rect x="3" y="3" width="18" height="7" rx="2" />
-      <rect x="3" y="11" width="18" height="7" rx="2" />
+      {/* Outer rounded rectangle for the bubble */}
+      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12l4 4V6c0-1.1-.9-2-2-2z" />
     </svg>
   );
 }
