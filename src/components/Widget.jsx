@@ -72,7 +72,7 @@ export const Widget = ({ projectId }) => {
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent className="widget rounded-lg bg-gradient-to-r from-violet-400 via-purple-300 to-sky-900 p-6 shadow-xl w-full max-w-md">
+          <PopoverContent className="widget rounded-lg bg-gradient-to-r from-violet-500 via-purple-300 to-sky-900 p-6 shadow-xl w-full max-w-md">
             <style>{tailwindStyles}</style>
             {submitted ? (
               <div>
@@ -137,7 +137,7 @@ export const Widget = ({ projectId }) => {
               </div>
             )}
             <Separator className="my-4 border-gray-400" />
-            <div className="text-gray-600">
+            <div className="text-gray-300">
               Powered by{" "}
               <a
                 href="https://www.mrdmilkyway.com"
