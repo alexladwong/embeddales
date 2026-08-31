@@ -347,10 +347,33 @@ const popoverSides = {
   "top-left": "bottom",
 };
 
+const disposableDomains = [
+  "tempmail.com",
+  "guerrillamail.com",
+  "10minutemail.com",
+  "mailinator.com",
+  "throwaway.com",
+  "tempinbox.com",
+  "yopmail.com",
+  "spamgourmet.com",
+  "trashmail.com",
+  "mailnator.com",
+  "fakeinbox.com",
+  "dispostable.com",
+  "discard.email",
+  "spambox.us",
+  "temp-mail.org",
+];
+
 const clampRating = (value) => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return 3;
   return Math.min(5, Math.max(1, Math.round(parsed)));
+};
+
+const isDisposableEmail = (email) => {
+  const domain = email.split("@")[1]?.trim().toLowerCase();
+  return Boolean(domain && disposableDomains.includes(domain));
 };
 
 export const Widget = ({
@@ -396,16 +419,22 @@ export const Widget = ({
   const submit = async (e) => {
     e.preventDefault();
     const form = e.target;
+    const userEmail = form.email.value.trim();
 
-    if (!form.name.value || !form.email.value || !form.feedback.value) {
+    if (!form.name.value || !userEmail || !form.feedback.value) {
       setError("Please fill out every field before submitting.");
+      return;
+    }
+
+    if (isDisposableEmail(userEmail)) {
+      setError("Please use a valid email address. Temporary or disposable emails are not allowed.");
       return;
     }
 
     const data = {
       p_project_id: projectId,
       p_user_name: form.name.value,
-      p_user_email: form.email.value,
+      p_user_email: userEmail,
       p_message: form.feedback.value,
       p_rating: rating,
     };
@@ -448,7 +477,7 @@ export const Widget = ({
               {open ? (
                 <X aria-hidden="true" className="h-5 w-5" />
               ) : (
-                <span>◊</span>
+                <span></span>
               )}
               <span className="nexx-launcher-label">{buttonLabel}</span>
             </Button>
