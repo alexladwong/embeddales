@@ -483,6 +483,7 @@ export const Widget = ({
             </Button>
           </PopoverTrigger>
 
+
           <PopoverContent
             className="widget nexx-widget nexx-panel p-0"
             side={popoverSides[position] || "left"}
