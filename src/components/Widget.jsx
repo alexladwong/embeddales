@@ -135,13 +135,15 @@ const chooseBorderColor = (accentColor, backgroundColors) => {
 const widgetStyles = `
   .nexx-widget {
     --nexx-accent: #816fdd;
-    --nexx-surface: #82a8f963;
+    --nexx-accent-contrast: #ffffff;
+    --nexx-surface: #ffffff;
     --nexx-text: #ffffff;
     --nexx-muted: #ffffff;
-    --nexx-radius: 12px;
-    --nexx-font: Inter, ui-sans-serif, system-ui, sans-serif;
-    --nexx-border: #82a8f963;
-    --nexx-radius: 6px;
+    --nexx-border: #111827;
+    --nexx-rule: color-mix(in srgb, var(--nexx-accent-contrast) 22%, transparent);
+    --nexx-soft: color-mix(in srgb, var(--nexx-accent-contrast) 14%, transparent);
+    --nexx-danger: #b91c1c;
+    --nexx-radius: 16px;
     --nexx-font: inherit;
     color: var(--nexx-accent-contrast);
     font-family: var(--nexx-font);
@@ -188,6 +190,7 @@ const widgetStyles = `
   }
 
   .nexx-launcher:hover {
+    background: var(--nexx-accent);
     box-shadow:
       0 18px 42px color-mix(in srgb, var(--nexx-accent) 32%, transparent),
       0 0 26px 3px color-mix(in srgb, var(--nexx-border) 45%, transparent);
@@ -264,6 +267,60 @@ const widgetStyles = `
     line-height: 1;
     color: var(--nexx-accent-contrast);
     background: linear-gradient(
+      180deg,
+      #ff6b81,
+      #ffa94d,
+      #ffe066,
+      #8ce99a,
+      #66d9e8,
+      #b197fc,
+      #ff6b81
+    );
+    background-size: 100% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: nexx-label-flow-v 6s linear infinite;
+  }
+
+  @keyframes nexx-label-flow-v {
+    0% {
+      background-position: 50% 0%;
+    }
+    100% {
+      background-position: 50% 150%;
+    }
+  }
+
+  @keyframes nexx-label-flow-h {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 150% 50%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nexx-launcher-label {
+      animation: none;
+    }
+
+    .nexx-launcher:hover::before,
+    .nexx-launcher:hover::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  .nexx-position-bottom-right .nexx-launcher-label,
+  .nexx-position-bottom-left .nexx-launcher-label,
+  .nexx-position-top-right .nexx-launcher-label,
+  .nexx-position-top-left .nexx-launcher-label {
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 0.875rem;
+    background: linear-gradient(
       90deg,
       #ff6b81,
       #ffa94d,
@@ -277,31 +334,7 @@ const widgetStyles = `
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: nexx-label-flow 6s linear infinite;
-  }
-
-  @keyframes nexx-label-flow {
-    0% {
-      background-position: 0% 50%;
-    }
-    100% {
-      background-position: 300% 50%;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .nexx-launcher-label {
-      animation: none;
-    }
-  }
-
-  .nexx-position-bottom-right .nexx-launcher-label,
-  .nexx-position-bottom-left .nexx-launcher-label,
-  .nexx-position-top-right .nexx-launcher-label,
-  .nexx-position-top-left .nexx-launcher-label {
-    writing-mode: horizontal-tb;
-    transform: none;
-    font-size: 0.875rem;
+    animation: nexx-label-flow-h 6s linear infinite;
   }
 
   .nexx-panel {
@@ -606,7 +639,7 @@ export const Widget = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const accentHex = accentColor || pageTheme.accentColor || "#2563eb";
+  const accentHex = accentColor || pageTheme.accentColor || "#816fdd";
 
   const liveBackgrounds = sampleHostBackgrounds();
   const hostBackgrounds = liveBackgrounds.length
@@ -619,7 +652,7 @@ export const Widget = ({
     "--nexx-surface": surfaceColor || pageTheme.surfaceColor || "#ffffff",
     "--nexx-text": textColor || pageTheme.textColor || "#111827",
     "--nexx-muted": mutedColor || pageTheme.mutedColor || "#6b7280",
-    "--nexx-radius": radius || pageTheme.radius || "12px",
+    "--nexx-radius": radius || pageTheme.radius || "6px",
     "--nexx-font": fontFamily || pageTheme.fontFamily || "Inter, ui-sans-serif, system-ui, sans-serif",
     "--nexx-border": chooseBorderColor(accentHex, hostBackgrounds),
   };
