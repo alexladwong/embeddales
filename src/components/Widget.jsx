@@ -137,7 +137,7 @@ const widgetStyles = `
     --nexx-accent: #816fdd;
     --nexx-surface: #82a8f963;
     --nexx-text: #ffffff;
-    --nexx-muted: #6b7280;
+    --nexx-muted: #ffffff;
     --nexx-radius: 12px;
     --nexx-font: Inter, ui-sans-serif, system-ui, sans-serif;
     --nexx-border: #82a8f963;
@@ -591,7 +591,7 @@ export const Widget = ({
   radius,
   fontFamily,
   position = "right-middle",
-  buttonLabel = "  Feedback  ",
+  buttonLabel = "Feedback",
   title = "Send us your feedback",
   description = "Tell us what worked, what did not, and what would make this page better.",
   successTitle = "Feedback received",
@@ -685,7 +685,7 @@ export const Widget = ({
       >
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button className="nexx-launcher" aria-label={open ? "Close feedback form" : buttonLabel}>
+            <Button className="nexx-launcher text-xs hover:uppercase" aria-label={open ? "Close feedback form" : buttonLabel}>
               {open ? (
                 <X aria-hidden="true" className="h-5 w-5" />
               ) : (
