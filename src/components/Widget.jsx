@@ -135,12 +135,12 @@ const chooseBorderColor = (accentColor, backgroundColors) => {
 const widgetStyles = `
   .nexx-widget {
     --nexx-accent: #2563eb;
-    --nexx-surface: #ffffff;
+    --nexx-surface: #82a8f963;
     --nexx-text: #111827;
     --nexx-muted: #6b7280;
     --nexx-radius: 12px;
     --nexx-font: Inter, ui-sans-serif, system-ui, sans-serif;
-    --nexx-border: #ffffff;
+    --nexx-border: #82a8f963;
     --nexx-radius: 6px;
     --nexx-font: inherit;
     color: var(--nexx-accent-contrast);
