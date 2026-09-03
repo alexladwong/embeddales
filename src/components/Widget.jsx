@@ -4,6 +4,7 @@ import { CheckCircle2, MessageCircle, Send, Star, X } from "lucide-react";
 import { useState } from "react";
 import tailwindStyles from "../index.css?inline";
 import supabase from "../supabaseClient";
+import { computeAccentContrast, getAutoPageTheme } from "../autoTheme";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -137,15 +138,15 @@ const widgetStyles = `
     --nexx-accent: #816fdd;
     --nexx-accent-contrast: #ffffff;
     --nexx-surface: #ffffff;
-    --nexx-text: #ffffff;
-    --nexx-muted: #ffffff;
+    --nexx-text: #111827;
+    --nexx-muted: color-mix(in srgb, var(--nexx-text) 62%, transparent);
     --nexx-border: #111827;
-    --nexx-rule: color-mix(in srgb, var(--nexx-accent-contrast) 22%, transparent);
-    --nexx-soft: color-mix(in srgb, var(--nexx-accent-contrast) 14%, transparent);
+    --nexx-rule: color-mix(in srgb, var(--nexx-text) 16%, transparent);
+    --nexx-soft: color-mix(in srgb, var(--nexx-accent) 9%, var(--nexx-surface));
     --nexx-danger: #b91c1c;
-    --nexx-radius: 16px;
+    --nexx-radius: 6px;
     --nexx-font: inherit;
-    color: var(--nexx-accent-contrast);
+    color: var(--nexx-text);
     font-family: var(--nexx-font);
   }
 
@@ -341,9 +342,9 @@ const widgetStyles = `
     width: min(calc(100vw - 2rem), 420px);
     border: 2px solid var(--nexx-border);
     border-radius: var(--nexx-radius);
-    background: var(--nexx-accent);
-    color: var(--nexx-accent-contrast);
-    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
+    background: var(--nexx-surface);
+    color: var(--nexx-text);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
     overflow: hidden;
     font-family: var(--nexx-font);
   }
@@ -352,6 +353,7 @@ const widgetStyles = `
     display: flex;
     gap: 0.75rem;
     padding: 1.25rem 1.25rem 1rem;
+    background: color-mix(in srgb, var(--nexx-accent) 6%, var(--nexx-surface));
   }
 
   .nexx-icon-badge {
@@ -361,13 +363,13 @@ const widgetStyles = `
     min-width: 38px;
     place-items: center;
     border-radius: calc(var(--nexx-radius) - 4px);
-    background: var(--nexx-accent-contrast);
-    color: var(--nexx-accent);
+    background: var(--nexx-accent);
+    color: var(--nexx-accent-contrast);
   }
 
   .nexx-title {
     margin: 0;
-    color: var(--nexx-accent-contrast);
+    color: var(--nexx-text);
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.25;
@@ -376,7 +378,7 @@ const widgetStyles = `
 
   .nexx-description {
     margin: 0.25rem 0 0;
-    color: color-mix(in srgb, var(--nexx-accent-contrast) 74%, transparent);
+    color: color-mix(in srgb, var(--nexx-text) 64%, transparent);
     font-size: 0.875rem;
     line-height: 1.45;
   }
@@ -399,27 +401,27 @@ const widgetStyles = `
   }
 
   .nexx-label {
-    color: color-mix(in srgb, var(--nexx-accent-contrast) 85%, transparent);
+    color: var(--nexx-text);
     font-size: 0.8rem;
   }
 
   .nexx-input {
-    border: 1px solid color-mix(in srgb, var(--nexx-accent-contrast) 45%, transparent);
-    border-radius: calc(var(--nexx-radius) - 5px);
-    background: color-mix(in srgb, var(--nexx-accent-contrast) 12%, transparent);
-    color: var(--nexx-accent-contrast);
+    border: 1px solid var(--nexx-rule);
+    border-radius: calc(var(--nexx-radius) - 4px);
+    background: color-mix(in srgb, var(--nexx-surface) 93%, var(--nexx-text));
+    color: var(--nexx-text);
     box-shadow: none;
     font-family: var(--nexx-font);
   }
 
   .nexx-input::placeholder {
-    color: color-mix(in srgb, var(--nexx-accent-contrast) 55%, transparent);
+    color: color-mix(in srgb, var(--nexx-text) 45%, transparent);
     opacity: 1;
   }
 
   .nexx-input:focus-visible {
-    border-color: var(--nexx-accent-contrast);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nexx-accent-contrast) 30%, transparent);
+    border-color: var(--nexx-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nexx-accent) 22%, transparent);
   }
 
   .nexx-actions {
@@ -443,36 +445,36 @@ const widgetStyles = `
     border: 0;
     border-radius: 999px;
     background: transparent;
-    color: color-mix(in srgb, var(--nexx-accent-contrast) 48%, transparent);
+    color: color-mix(in srgb, var(--nexx-text) 30%, transparent);
     cursor: pointer;
   }
 
   .nexx-star-button:hover,
   .nexx-star-button:focus-visible {
     background: var(--nexx-soft);
-    color: var(--nexx-accent-contrast);
+    color: var(--nexx-accent);
     outline: none;
   }
 
   .nexx-star-button[data-active="true"] {
-    color: var(--nexx-accent-contrast);
+    color: var(--nexx-accent);
   }
 
   .nexx-submit {
     gap: 0.45rem;
     border-radius: calc(var(--nexx-radius) - 4px);
-    background: var(--nexx-accent-contrast);
-    color: var(--nexx-accent);
+    background: var(--nexx-accent);
+    color: var(--nexx-accent-contrast);
     font-family: var(--nexx-font);
   }
 
   .nexx-submit:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--nexx-accent-contrast) 88%, var(--nexx-accent));
+    background: color-mix(in srgb, var(--nexx-accent) 88%, #111827);
   }
 
   .nexx-submit:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nexx-accent-contrast) 50%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nexx-accent) 40%, transparent);
   }
 
   .nexx-submit:disabled {
@@ -482,9 +484,9 @@ const widgetStyles = `
 
   .nexx-error {
     margin: -0.25rem 1.25rem 1rem;
-    border: 0;
-    border-radius: calc(var(--nexx-radius) - 5px);
-    background: var(--nexx-accent-contrast);
+    border: 1px solid color-mix(in srgb, var(--nexx-danger) 35%, transparent);
+    border-radius: calc(var(--nexx-radius) - 4px);
+    background: color-mix(in srgb, var(--nexx-danger) 8%, var(--nexx-surface));
     color: var(--nexx-danger);
     padding: 0.75rem;
     font-size: 0.875rem;
@@ -495,24 +497,24 @@ const widgetStyles = `
   }
 
   .nexx-success-card {
-    border: 1px solid var(--nexx-rule);
+    border: 1px solid color-mix(in srgb, var(--nexx-accent) 28%, transparent);
     border-radius: calc(var(--nexx-radius) - 4px);
     background: var(--nexx-soft);
     padding: 1rem;
   }
 
   .nexx-success-icon {
-    color: var(--nexx-accent-contrast);
+    color: var(--nexx-accent);
   }
 
   .nexx-footer {
     padding: 0 1.25rem 1rem;
-    color: color-mix(in srgb, var(--nexx-accent-contrast) 62%, transparent);
+    color: color-mix(in srgb, var(--nexx-text) 55%, transparent);
     font-size: 0.75rem;
   }
 
   .nexx-footer a {
-    color: var(--nexx-accent-contrast);
+    color: var(--nexx-accent);
     font-weight: 700;
     text-decoration: none;
   }
@@ -639,21 +641,45 @@ export const Widget = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const accentHex = accentColor || pageTheme.accentColor || "#816fdd";
+  // Page styles are the default UI: explicit props win, then an explicitly
+  // passed theme, then a realistic live sample of the hosting page, then built-ins.
+  const pageProvided = pageTheme && typeof pageTheme === "object" ? pageTheme : {};
+  const autoTheme = getAutoPageTheme() || {};
+
+  const accentHex =
+    accentColor || pageProvided.accentColor || autoTheme.accentColor || "#816fdd";
+  const accentContrastHex =
+    accentContrast ||
+    pageProvided.accentContrast ||
+    computeAccentContrast(accentHex);
+  const surfaceHex =
+    surfaceColor || pageProvided.surfaceColor || autoTheme.surfaceColor || "#ffffff";
+  const textHex =
+    textColor || pageProvided.textColor || autoTheme.textColor || "#111827";
+  const mutedHex =
+    mutedColor ||
+    pageProvided.mutedColor ||
+    autoTheme.mutedColor ||
+    "color-mix(in srgb, var(--nexx-text) 62%, transparent)";
+  const radiusValue =
+    radius || pageProvided.radius || autoTheme.radius || "6px";
+  const fontValue =
+    fontFamily ||
+    pageProvided.fontFamily ||
+    autoTheme.fontFamily ||
+    "Inter, ui-sans-serif, system-ui, sans-serif";
 
   const liveBackgrounds = sampleHostBackgrounds();
-  const hostBackgrounds = liveBackgrounds.length
-    ? liveBackgrounds
-    : [surfaceColor || pageTheme.surfaceColor || "#ffffff"];
+  const hostBackgrounds = liveBackgrounds.length ? liveBackgrounds : [surfaceHex];
 
   const themeStyle = {
     "--nexx-accent": accentHex,
-    "--nexx-accent-contrast": accentContrast || pageTheme.accentContrast || "#ffffff",
-    "--nexx-surface": surfaceColor || pageTheme.surfaceColor || "#ffffff",
-    "--nexx-text": textColor || pageTheme.textColor || "#111827",
-    "--nexx-muted": mutedColor || pageTheme.mutedColor || "#6b7280",
-    "--nexx-radius": radius || pageTheme.radius || "6px",
-    "--nexx-font": fontFamily || pageTheme.fontFamily || "Inter, ui-sans-serif, system-ui, sans-serif",
+    "--nexx-accent-contrast": accentContrastHex,
+    "--nexx-surface": surfaceHex,
+    "--nexx-text": textHex,
+    "--nexx-muted": mutedHex,
+    "--nexx-radius": radiusValue,
+    "--nexx-font": fontValue,
     "--nexx-border": chooseBorderColor(accentHex, hostBackgrounds),
   };
 

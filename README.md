@@ -10,8 +10,21 @@ Embeddable React feedback widget packaged as a web component.
 <my-widget project-id="1"></my-widget>
 ```
 
-By default, the widget samples the host page's font, text color, background,
-brand/accent color, and border radius so it fits the surrounding UI.
+By default the widget auto-themes realistically from the host page and uses
+the page styles as its default UI:
+
+- **Surface & text** – the panel mirrors the page's background (solid colors and
+  gradients, light and dark pages) and text color.
+- **Brand color** – the launcher, icon, submit button, stars and links use the
+  page's real accent/brand color, detected from CSS brand variables and from
+  actual buttons/CTAs (ghost buttons and faint tints are ignored).
+- **Readable contrast** – text drawn on the accent is automatically black or
+  white, whichever has the higher contrast.
+- **Font & radius** – inherited from the page's typography and control radius.
+- **Strong adaptive border** – a 2px border that flips between white and dark
+  based on the page background so the widget always stands out.
+
+Every auto-detected value can still be overridden with the attributes below.
 
 ## Customization
 
