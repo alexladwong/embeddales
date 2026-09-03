@@ -269,7 +269,6 @@ const widgetStyles = `
     color: var(--nexx-accent-contrast);
     background: linear-gradient(
       180deg,
-      #ff6b81,
       #ffa94d,
       #ffe066,
       #8ce99a,
@@ -323,7 +322,6 @@ const widgetStyles = `
     font-size: 0.875rem;
     background: linear-gradient(
       90deg,
-      #ff6b81,
       #ffa94d,
       #ffe066,
       #8ce99a,
