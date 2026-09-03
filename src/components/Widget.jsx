@@ -140,7 +140,7 @@ const widgetStyles = `
     --nexx-muted: #6b7280;
     --nexx-radius: 12px;
     --nexx-font: Inter, ui-sans-serif, system-ui, sans-serif;
-    --nexx-border: #8722b952;
+    --nexx-border: #ffffff;
     --nexx-radius: 6px;
     --nexx-font: inherit;
     color: var(--nexx-accent-contrast);
@@ -170,6 +170,7 @@ const widgetStyles = `
   .nexx-position-top-left { top: 1rem; left: 1rem; }
 
   .nexx-launcher {
+    position: relative;
     width: 44px;
     min-width: 44px;
     height: 136px;
@@ -187,8 +188,9 @@ const widgetStyles = `
   }
 
   .nexx-launcher:hover {
-    filter: brightness(1.08);
-    box-shadow: 0 18px 42px color-mix(in srgb, var(--nexx-accent) 38%, transparent);
+    box-shadow:
+      0 18px 42px color-mix(in srgb, var(--nexx-accent) 32%, transparent),
+      0 0 26px 3px color-mix(in srgb, var(--nexx-border) 45%, transparent);
     transform: translateX(-2px);
   }
 
@@ -198,6 +200,40 @@ const widgetStyles = `
 
   .nexx-position-left-middle .nexx-launcher:hover {
     transform: translateX(2px);
+  }
+
+  .nexx-launcher::before,
+  .nexx-launcher::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border: 1.5px solid var(--nexx-border);
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .nexx-launcher:hover::before,
+  .nexx-launcher:hover::after {
+    animation: nexx-radiate 1.2s ease-out infinite;
+  }
+
+  .nexx-launcher:hover::after {
+    animation-delay: 0.6s;
+  }
+
+  @keyframes nexx-radiate {
+    0% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    70% {
+      opacity: 0.35;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.45);
+    }
   }
 
   .nexx-position-bottom-right .nexx-launcher,
