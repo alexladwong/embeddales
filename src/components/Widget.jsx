@@ -262,6 +262,37 @@ const widgetStyles = `
     font-size: 0.78rem;
     font-weight: 800;
     line-height: 1;
+    color: var(--nexx-accent-contrast);
+    background: linear-gradient(
+      90deg,
+      #ff6b81,
+      #ffa94d,
+      #ffe066,
+      #8ce99a,
+      #66d9e8,
+      #b197fc,
+      #ff6b81
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: nexx-label-flow 6s linear infinite;
+  }
+
+  @keyframes nexx-label-flow {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 300% 50%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nexx-launcher-label {
+      animation: none;
+    }
   }
 
   .nexx-position-bottom-right .nexx-launcher-label,
