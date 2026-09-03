@@ -9,6 +9,129 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 
+const IGNORED_BACKGROUNDS = new Set([
+  "",
+  "transparent",
+  "rgba(0, 0, 0, 0)",
+  "rgba(0,0,0,0)",
+  "none",
+]);
+
+const hexToRgb = (hex) => {
+  let value = hex.replace("#", "");
+  if (value.length === 3) {
+    value = value
+      .split("")
+      .map((char) => char + char)
+      .join("");
+  }
+  if (value.length !== 6) return null;
+  const parsed = parseInt(value, 16);
+  if (Number.isNaN(parsed)) return null;
+  return [(parsed >> 16) & 255, (parsed >> 8) & 255, parsed & 255];
+};
+
+const parseChannel = (value) => {
+  const trimmed = String(value).trim();
+  if (trimmed.endsWith("%")) {
+    return (parseFloat(trimmed) / 100) * 255;
+  }
+  return parseFloat(trimmed);
+};
+
+const cssColorToRgb = (value) => {
+  const color = String(value ?? "").trim();
+  if (!color) return null;
+
+  if (color.startsWith("#")) return hexToRgb(color);
+
+  const match = color.match(
+    /^rgba?\(\s*([\d.]+%?)\s*[, ]\s*([\d.]+%?)\s*[, ]\s*([\d.]+%?)\s*(?:[,/]\s*([\d.]+%?))?\s*\)$/i
+  );
+  if (!match) return null;
+
+  const channels = [parseChannel(match[1]), parseChannel(match[2]), parseChannel(match[3])];
+  if (channels.some((channel) => !Number.isFinite(channel))) return null;
+
+  const rawAlpha = match[4];
+  const alpha = rawAlpha === undefined ? 1 : rawAlpha.trim().endsWith("%") ? parseFloat(rawAlpha) / 100 : parseFloat(rawAlpha);
+  const blendedAlpha = Number.isFinite(alpha) ? Math.min(1, Math.max(0, alpha)) : 1;
+
+  // Blend translucent colors over the browser's default canvas.
+  return channels.map((channel) => blendedAlpha * channel + (1 - blendedAlpha) * 255);
+};
+
+const toLinearChannel = (channel) => {
+  const scaled = channel / 255;
+  return scaled <= 0.03928 ? scaled / 12.92 : ((scaled + 0.055) / 1.055) ** 2.4;
+};
+
+const toLuminance = (rgb) => {
+  if (!rgb) return 1;
+  return 0.2126 * toLinearChannel(rgb[0]) + 0.7152 * toLinearChannel(rgb[1]) + 0.0722 * toLinearChannel(rgb[2]);
+};
+
+const contrastRatio = (first, second) => {
+  const lighter = Math.max(first, second);
+  const darker = Math.min(first, second);
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
+const isUsableHostColor = (value) => {
+  const trimmed = String(value ?? "").trim().toLowerCase();
+  return Boolean(trimmed && !IGNORED_BACKGROUNDS.has(trimmed));
+};
+
+const sampleHostBackgrounds = () => {
+  if (typeof window === "undefined" || typeof document === "undefined") return [];
+
+  const colors = [];
+  for (const element of [document.body, document.documentElement]) {
+    if (!element) continue;
+    const styles = window.getComputedStyle(element);
+
+    const backgroundColor = styles.getPropertyValue("background-color").trim();
+    if (isUsableHostColor(backgroundColor)) colors.push(backgroundColor);
+
+    const backgroundImage = styles.getPropertyValue("background-image").trim();
+    if (backgroundImage && backgroundImage !== "none") {
+      const gradientStops = backgroundImage.match(/(?:rgba?\([^)]*\)|#[0-9a-f]{3,8})/gi) || [];
+      colors.push(...gradientStops.slice(0, 6));
+    }
+  }
+
+  return colors;
+};
+
+const chooseBorderColor = (accentColor, backgroundColors) => {
+  const lightCandidate = "#ffffff";
+  const darkCandidate = "#111827";
+
+  const luminanceOf = (value) => {
+    const luminance = toLuminance(cssColorToRgb(value));
+    return Number.isFinite(luminance) ? luminance : 1;
+  };
+
+  const usableColors = backgroundColors.filter(isUsableHostColor);
+  const accentLuminance = luminanceOf(accentColor);
+  const pageLuminance = usableColors.length
+    ? usableColors.reduce((sum, color) => sum + luminanceOf(color), 0) / usableColors.length
+    : 1;
+
+  const scoreFor = (candidate) => {
+    const luminance = luminanceOf(candidate);
+    return Math.min(contrastRatio(luminance, accentLuminance), contrastRatio(luminance, pageLuminance));
+  };
+
+  const lightScore = scoreFor(lightCandidate);
+  const darkScore = scoreFor(darkCandidate);
+
+  if (lightScore === darkScore) {
+    return pageLuminance < 0.5 ? lightCandidate : darkCandidate;
+  }
+  return lightScore > darkScore ? lightCandidate : darkCandidate;
+};
+
 const widgetStyles = `
   .nexx-widget {
     --nexx-accent: #2563eb;
@@ -16,12 +139,13 @@ const widgetStyles = `
     --nexx-surface: #ffffff;
     --nexx-text: #111827;
     --nexx-muted: #6b7280;
-    --nexx-border: color-mix(in srgb, var(--nexx-text) 14%, transparent);
-    --nexx-soft: color-mix(in srgb, var(--nexx-accent) 9%, var(--nexx-surface));
+    --nexx-border: #111827;
+    --nexx-rule: color-mix(in srgb, var(--nexx-accent-contrast) 22%, transparent);
+    --nexx-soft: color-mix(in srgb, var(--nexx-accent-contrast) 14%, transparent);
     --nexx-danger: #b91c1c;
     --nexx-radius: 12px;
     --nexx-font: inherit;
-    color: var(--nexx-text);
+    color: var(--nexx-accent-contrast);
     font-family: var(--nexx-font);
   }
 
@@ -52,7 +176,7 @@ const widgetStyles = `
     min-width: 44px;
     height: 136px;
     gap: 0.5rem;
-    border: 1px solid color-mix(in srgb, var(--nexx-accent) 70%, #ffffff);
+    border: 2px solid var(--nexx-border);
     border-radius: 12px 0 0 12px;
     background: var(--nexx-accent);
     color: var(--nexx-accent-contrast);
@@ -65,7 +189,8 @@ const widgetStyles = `
   }
 
   .nexx-launcher:hover {
-    background: color-mix(in srgb, var(--nexx-accent) 88%, #000000);
+    filter: brightness(1.08);
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--nexx-accent) 38%, transparent);
     transform: translateX(-2px);
   }
 
@@ -116,11 +241,11 @@ const widgetStyles = `
 
   .nexx-panel {
     width: min(calc(100vw - 2rem), 420px);
-    border: 1px solid var(--nexx-border);
+    border: 2px solid var(--nexx-border);
     border-radius: var(--nexx-radius);
-    background: var(--nexx-surface);
-    color: var(--nexx-text);
-    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.22);
+    background: var(--nexx-accent);
+    color: var(--nexx-accent-contrast);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
     overflow: hidden;
     font-family: var(--nexx-font);
   }
@@ -129,7 +254,6 @@ const widgetStyles = `
     display: flex;
     gap: 0.75rem;
     padding: 1.25rem 1.25rem 1rem;
-    background: linear-gradient(180deg, var(--nexx-soft), var(--nexx-surface));
   }
 
   .nexx-icon-badge {
@@ -139,13 +263,13 @@ const widgetStyles = `
     min-width: 38px;
     place-items: center;
     border-radius: calc(var(--nexx-radius) - 4px);
-    background: var(--nexx-accent);
-    color: var(--nexx-accent-contrast);
+    background: var(--nexx-accent-contrast);
+    color: var(--nexx-accent);
   }
 
   .nexx-title {
     margin: 0;
-    color: var(--nexx-text);
+    color: var(--nexx-accent-contrast);
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.25;
@@ -154,7 +278,7 @@ const widgetStyles = `
 
   .nexx-description {
     margin: 0.25rem 0 0;
-    color: var(--nexx-muted);
+    color: color-mix(in srgb, var(--nexx-accent-contrast) 74%, transparent);
     font-size: 0.875rem;
     line-height: 1.45;
   }
@@ -177,22 +301,27 @@ const widgetStyles = `
   }
 
   .nexx-label {
-    color: var(--nexx-text);
+    color: color-mix(in srgb, var(--nexx-accent-contrast) 85%, transparent);
     font-size: 0.8rem;
   }
 
   .nexx-input {
-    border-color: var(--nexx-border);
+    border: 1px solid color-mix(in srgb, var(--nexx-accent-contrast) 45%, transparent);
     border-radius: calc(var(--nexx-radius) - 5px);
-    background: color-mix(in srgb, var(--nexx-surface) 96%, var(--nexx-text));
-    color: var(--nexx-text);
+    background: color-mix(in srgb, var(--nexx-accent-contrast) 12%, transparent);
+    color: var(--nexx-accent-contrast);
     box-shadow: none;
     font-family: var(--nexx-font);
   }
 
+  .nexx-input::placeholder {
+    color: color-mix(in srgb, var(--nexx-accent-contrast) 55%, transparent);
+    opacity: 1;
+  }
+
   .nexx-input:focus-visible {
-    border-color: var(--nexx-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nexx-accent) 18%, transparent);
+    border-color: var(--nexx-accent-contrast);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nexx-accent-contrast) 30%, transparent);
   }
 
   .nexx-actions {
@@ -216,38 +345,48 @@ const widgetStyles = `
     border: 0;
     border-radius: 999px;
     background: transparent;
-    color: color-mix(in srgb, var(--nexx-text) 35%, transparent);
+    color: color-mix(in srgb, var(--nexx-accent-contrast) 48%, transparent);
     cursor: pointer;
   }
 
   .nexx-star-button:hover,
   .nexx-star-button:focus-visible {
     background: var(--nexx-soft);
-    color: var(--nexx-accent);
+    color: var(--nexx-accent-contrast);
     outline: none;
   }
 
   .nexx-star-button[data-active="true"] {
-    color: #f59e0b;
+    color: var(--nexx-accent-contrast);
   }
 
   .nexx-submit {
     gap: 0.45rem;
     border-radius: calc(var(--nexx-radius) - 4px);
-    background: var(--nexx-accent);
-    color: var(--nexx-accent-contrast);
+    background: var(--nexx-accent-contrast);
+    color: var(--nexx-accent);
     font-family: var(--nexx-font);
   }
 
-  .nexx-submit:hover {
-    background: color-mix(in srgb, var(--nexx-accent) 88%, #000000);
+  .nexx-submit:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--nexx-accent-contrast) 88%, var(--nexx-accent));
+  }
+
+  .nexx-submit:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nexx-accent-contrast) 50%, transparent);
+  }
+
+  .nexx-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
   }
 
   .nexx-error {
     margin: -0.25rem 1.25rem 1rem;
-    border: 1px solid color-mix(in srgb, var(--nexx-danger) 30%, transparent);
+    border: 0;
     border-radius: calc(var(--nexx-radius) - 5px);
-    background: color-mix(in srgb, var(--nexx-danger) 8%, var(--nexx-surface));
+    background: var(--nexx-accent-contrast);
     color: var(--nexx-danger);
     padding: 0.75rem;
     font-size: 0.875rem;
@@ -258,24 +397,24 @@ const widgetStyles = `
   }
 
   .nexx-success-card {
-    border: 1px solid var(--nexx-border);
+    border: 1px solid var(--nexx-rule);
     border-radius: calc(var(--nexx-radius) - 4px);
     background: var(--nexx-soft);
     padding: 1rem;
   }
 
   .nexx-success-icon {
-    color: var(--nexx-accent);
+    color: var(--nexx-accent-contrast);
   }
 
   .nexx-footer {
     padding: 0 1.25rem 1rem;
-    color: var(--nexx-muted);
+    color: color-mix(in srgb, var(--nexx-accent-contrast) 62%, transparent);
     font-size: 0.75rem;
   }
 
   .nexx-footer a {
-    color: var(--nexx-accent);
+    color: var(--nexx-accent-contrast);
     font-weight: 700;
     text-decoration: none;
   }
@@ -402,14 +541,22 @@ export const Widget = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const accentHex = accentColor || pageTheme.accentColor || "#2563eb";
+
+  const liveBackgrounds = sampleHostBackgrounds();
+  const hostBackgrounds = liveBackgrounds.length
+    ? liveBackgrounds
+    : [surfaceColor || pageTheme.surfaceColor || "#ffffff"];
+
   const themeStyle = {
-    "--nexx-accent": accentColor || pageTheme.accentColor || "#2563eb",
+    "--nexx-accent": accentHex,
     "--nexx-accent-contrast": accentContrast || pageTheme.accentContrast || "#ffffff",
     "--nexx-surface": surfaceColor || pageTheme.surfaceColor || "#ffffff",
     "--nexx-text": textColor || pageTheme.textColor || "#111827",
     "--nexx-muted": mutedColor || pageTheme.mutedColor || "#6b7280",
     "--nexx-radius": radius || pageTheme.radius || "12px",
     "--nexx-font": fontFamily || pageTheme.fontFamily || "Inter, ui-sans-serif, system-ui, sans-serif",
+    "--nexx-border": chooseBorderColor(accentHex, hostBackgrounds),
   };
 
   const onSelectStar = (index) => {
@@ -586,7 +733,7 @@ export const Widget = ({
                 {error ? <div className="nexx-error">{error}</div> : null}
               </>
             )}
-            <Separator className="mb-3 bg-[var(--nexx-border)]" />
+            <Separator className="mb-3 bg-[var(--nexx-rule)]" />
             <div className="nexx-footer">
               Powered by{" "}
               <a
